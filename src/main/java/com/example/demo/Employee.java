@@ -7,6 +7,13 @@ public class Employee {
     private String country;
     private String email;
 
+    public Employee(String name, String email, String country) {
+        this.name = name;
+        this.email = email;
+        this.country = country;
+    }
+    public Employee() {}
+
     public int getId() {
         return id;
     }

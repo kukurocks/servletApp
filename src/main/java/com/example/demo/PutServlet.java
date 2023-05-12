@@ -1,12 +1,13 @@
 package com.example.demo;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 
 @WebServlet("/putServlet")
 public class PutServlet extends HttpServlet {
@@ -19,23 +20,23 @@ public class PutServlet extends HttpServlet {
 
         String sid = request.getParameter("id");
         int id = Integer.parseInt(sid);
-
-        String name = request.getParameter("name");
-        String email = request.getParameter("email");
-
-        Employee employee = new Employee();
+        Employee employee = EmployeeRepository.createFromRequest(request);
         employee.setId(id);
-        employee.setName(name);
-        employee.setEmail(email);
-        employee.setCountry(request.getParameter("country"));
 
-        int status = EmployeeRepository.update(employee);
 
+        int status = 0;
+        try {
+            status = EmployeeRepository.update(employee);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         if (status > 0) {
             response.sendRedirect("viewServlet");
         } else {
-            out.println("Sorry! unable to update record");
+            out.println ("Sorry! unable to update record");
         }
+
+
         out.close();
     }
 }

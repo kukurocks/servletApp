@@ -1,45 +1,33 @@
 package com.example.demo;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 
 @WebServlet("/saveServlet")
 public class SaveServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
         response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
 
-        PrintWriter out = response.getWriter();
+        PrintWriter out = response.getWriter() ;
+        Employee employee = EmployeeRepository.createFromRequest(request);
 
-        String name = request.getParameter("name");
-        String email = request.getParameter("email");
-        String country = request.getParameter("country");
+            out.println(employee);
+            out.println(EmployeeRepository.getConnection());
 
-        Employee employee = new Employee();
+            int status = EmployeeRepository.save(employee);
 
-        employee.setName(name);
-        employee.setEmail(email);
-        employee.setCountry(country);
+            out.println(EmployeeRepository.getSaveMessage(status));
 
-        //out.println(employee.toString());
-        //out.println(EmployeeRepository.getConnection());
 
-        int status = EmployeeRepository.save(employee);
-        //out.println(status);
-
-        if (status > 0) {
-            out.print("Record saved successfully!");
-        } else {
-            out.println("Sorry! unable to save record");
         }
-        out.close();
     }
-}
+
