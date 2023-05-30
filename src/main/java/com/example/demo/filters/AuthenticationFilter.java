@@ -7,18 +7,30 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashSet;
 
 @WebFilter("/*")
 public class AuthenticationFilter implements Filter {
 
     private ServletContext context;
+    private HashSet<String> openServlets;
 
     public void init(FilterConfig fConfig) throws ServletException {
         this.context = fConfig.getServletContext();
         this.context.log(">>> AuthenticationFilter initialized");
+
+        // Initialize the set of open servlets
+        openServlets = new HashSet<>();
+        openServlets.add("/demo/saveServlet");
+        openServlets.add("/demo/viewByIDServlet");
+        openServlets.add("/demo/loginServlet");
+        openServlets.add("/demo/viewServlet");
+        openServlets.add("/demo/putServlet");
+        openServlets.add("/demo/deleteServlet");
     }
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
 
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
@@ -29,11 +41,7 @@ public class AuthenticationFilter implements Filter {
 
         HttpSession session = req.getSession(false);
 
-        if (session == null && !(
-                uri.endsWith("demo/saveServlet") ||
-                        uri.endsWith("demo/viewByIDServlet") ||
-                        uri.endsWith("demo/loginServlet") ||
-                        uri.endsWith("demo/viewServlet"))) {
+        if (session == null && !openServlets.contains(uri)) {
             this.context.log("<<< Unauthorized access request");
             PrintWriter out = res.getWriter();
             out.println("No access!!!");
@@ -43,6 +51,7 @@ public class AuthenticationFilter implements Filter {
     }
 
     public void destroy() {
-        //close any resources here
+        // Close any resources here
     }
 }
+

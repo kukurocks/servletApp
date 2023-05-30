@@ -1,13 +1,14 @@
 package com.example.demo;
 
 public class Employee {
-
+    private boolean is_deleted;
     private int id;
     private String name;
     private String country;
     private String email;
 
-    public Employee(String name, String email, String country) {
+    public Employee(boolean isDeleted, String name, String email, String country) {
+        is_deleted = isDeleted;
         this.name = name;
         this.email = email;
         this.country = country;

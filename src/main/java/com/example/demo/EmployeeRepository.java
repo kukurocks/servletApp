@@ -1,9 +1,7 @@
 package com.example.demo;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +55,7 @@ public class EmployeeRepository {
         int status = 0;
 
         try (Connection connection = EmployeeRepository.getConnection();
-             PreparedStatement ps = Objects.requireNonNull(connection).prepareStatement("update users set name=?, email=?, country=? where id=?")) {
+             PreparedStatement ps = Objects.requireNonNull(connection).prepareStatement("update users set name=?, email=?, country=? where id=? and is_deleted = false")) {
 
             ps.setString(1, employee.getName());
             ps.setString(2, employee.getEmail());
@@ -77,7 +75,7 @@ public class EmployeeRepository {
         int status = 0;
 
         try(Connection connection = EmployeeRepository.getConnection();
-            PreparedStatement ps = Objects.requireNonNull(connection).prepareStatement("delete from users where id=?")) {
+            PreparedStatement ps = Objects.requireNonNull(connection).prepareStatement("update users set is_deleted = true where id=?")) {
 
             ps.setInt(1, id);
             status = ps.executeUpdate();
@@ -93,7 +91,7 @@ public class EmployeeRepository {
         Optional<Employee> optionalEmployee = Optional.empty();
 
         try(Connection connection = EmployeeRepository.getConnection();
-            PreparedStatement ps = Objects.requireNonNull(connection).prepareStatement("select * from users where id=?")
+            PreparedStatement ps = Objects.requireNonNull(connection).prepareStatement("select * from users where id=? and is_deleted = false")
         ) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -109,6 +107,9 @@ public class EmployeeRepository {
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+        if(optionalEmployee.isEmpty()){
+            System.out.println("user is deleted");
+        }
         return optionalEmployee;
     }
 
@@ -117,7 +118,7 @@ public class EmployeeRepository {
         List<Employee> listEmployees = new ArrayList<>();
 
         try( Connection connection = EmployeeRepository.getConnection();
-              PreparedStatement ps =Objects.requireNonNull(connection).prepareStatement("select * from users");
+              PreparedStatement ps =Objects.requireNonNull(connection).prepareStatement("select * from users where is_deleted = false");
               ResultSet rs = ps.executeQuery()
         ) {
             while (rs.next()) {
@@ -150,6 +151,6 @@ public class EmployeeRepository {
         String email = request.getParameter("email");
         String country = request.getParameter("country");
 
-        return new Employee(name, email, country);
+        return new Employee(false, name, email, country);
     }
 }
